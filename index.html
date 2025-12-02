@@ -11,8 +11,7 @@
             overflow: hidden;
             background-color: #050505;
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            /* CRITICAL FOR MOBILE: Prevents scrolling while rotating the tree */
-            touch-action: none;
+            touch-action: none; /* CRITICAL FOR MOBILE */
         }
         #canvas-container {
             position: absolute;
@@ -23,7 +22,7 @@
             z-index: 1;
         }
 
-        /* Updated Video CSS: Keep it functional but invisible */
+        /* Video is hidden but active for processing */
         #input-video {
             position: absolute;
             top: 0;
@@ -52,8 +51,7 @@
             color: #fff;
             align-items: center;
             transition: opacity 0.3s;
-            /* Ensure UI fits on small phone screens */
-            max-width: 90%;
+            max-width: 95%;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -75,7 +73,6 @@
             white-space: nowrap;
         }
 
-        /* Style for Select and Range */
         select, input[type="range"] {
              border: 1px solid rgba(255, 255, 255, 0.2);
              background: rgba(255, 255, 255, 0.1);
@@ -86,7 +83,7 @@
             padding: 6px;
         }
         input[type="range"] {
-            width: 80px; /* Slightly smaller for mobile */
+            width: 80px;
             cursor: pointer;
         }
 
@@ -108,25 +105,28 @@
             border-radius: 50%;
         }
 
+        /* Buttons */
         button {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 8px 16px;
+            padding: 8px 12px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
+            min-width: 40px;
         }
         button:hover {
             background: rgba(255, 255, 255, 0.2);
         }
         button svg {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
         }
 
         #status-message {
@@ -143,7 +143,6 @@
             width: 80%;
         }
 
-        /* Gesture Hints */
         #gesture-hint {
             position: absolute;
             top: 20px;
@@ -154,7 +153,7 @@
             padding: 12px 24px;
             border-radius: 20px;
             color: #DCAE96;
-            font-size: 12px; /* Smaller for mobile */
+            font-size: 12px;
             z-index: 10;
             backdrop-filter: blur(10px);
             opacity: 0;
@@ -168,7 +167,6 @@
             opacity: 1;
         }
 
-        /* Mode Indicator */
         #mode-indicator {
             position: absolute;
             top: 20px;
@@ -184,7 +182,6 @@
             z-index: 10;
         }
 
-        /* Separator fix for wrapping */
         .separator {
             width: 1px;
             height: 24px;
@@ -193,8 +190,9 @@
         }
         @media (max-width: 600px) {
             .separator { display: none; }
-            #ui-overlay { bottom: 10px; gap: 10px; padding: 10px; }
+            #ui-overlay { bottom: 10px; gap: 8px; padding: 10px; }
             #mode-indicator { top: 10px; right: 10px; font-size: 12px; padding: 8px 12px;}
+            label { font-size: 12px; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -213,7 +211,7 @@
 </head>
 <body>
 
-    <div id="status-message">Starting camera...<br>Please allow camera permissions.<br><small>Works best in Safari (iOS) or Chrome (Desktop)</small></div>
+    <div id="status-message">Starting camera...<br>Please allow camera permissions.</div>
     <div id="gesture-hint">🤏 Pinch: Tree | ✋ Spread: Scatter</div>
     <div id="mode-indicator">🎄 Tree Mode</div>
 
@@ -230,22 +228,31 @@
 
         <div class="ui-group">
             <label for="densitySlider">Base</label>
-            <input type="range" id="densitySlider" min="1.5" max="5.0" step="0.5" value="3.5">
+            <input type="range" id="densitySlider" min="0.5" max="3.5" step="0.1" value="1.5">
         </div>
         <div class="separator"></div>
 
         <div class="ui-group">
             <label for="topperSelect">Top</label>
             <select id="topperSelect">
-                <option value="snowflake">Snow</option>
                 <option value="star">Star</option>
-                <option value="pokemon">Pika</option>
+                <option value="snowflake">Snow</option>
                 <option value="heart">Heart</option>
             </select>
         </div>
         <div class="separator"></div>
 
-        <button id="fullscreenBtn">
+        <button id="cameraSwitchBtn" title="Switch Camera">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <svg style="width:12px; height:12px; margin-left:-4px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+        </button>
+
+        <button id="fullscreenBtn" title="Fullscreen">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
             </svg>
@@ -256,11 +263,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-if (typeof window.Hands === 'undefined') {
-    document.getElementById('status-message').innerText = "Failed to load MediaPipe. Check internet connection.";
-    throw new Error("MediaPipe Global needs to be loaded correctly");
-}
-
 // ==========================================
 // Global Variables & State
 // ==========================================
@@ -268,13 +270,16 @@ let scene, camera, renderer, controls;
 let particleSystem, activeTopperParticles, floorParticles, snowParticles;
 let handsDetector, cameraFeed;
 let isHandsDetected = false;
+let currentFacingMode = 'environment'; // DEFAULT: Rear camera
+let cameraRunning = false;
 
 const interactionState = {
     morphProgress: 1.0,
     smoothMorph: 1.0,
     baseColor: new THREE.Color(0xff5555),
     rotationSpeed: 1.5,
-    densityPower: 3.5
+    // CHANGED: Lower densityPower (1.5) makes the base denser and distribution more uniform
+    densityPower: 1.5
 };
 
 const particleUniforms = {
@@ -322,7 +327,7 @@ function initThree() {
 }
 
 // ==========================================
-// 2. Tree Logic (Unchanged)
+// 2. Tree Logic
 // ==========================================
 function createZigZagTreePositions(particleCount, power) {
     const positions = new Float32Array(particleCount * 3);
@@ -373,7 +378,8 @@ function createScatteredPositions(particleCount) {
 // 4. Main Particle System
 // ==========================================
 function createParticleSystem() {
-    const particleCount = 90000;
+    // CHANGED: Increased from 90,000 to 108,000 (+20%)
+    const particleCount = 108000;
     const geometry = new THREE.BufferGeometry();
 
     const scatteredPositions = createScatteredPositions(particleCount);
@@ -433,8 +439,10 @@ function createParticleSystem() {
                 float dist = length(center);
                 if(dist > 0.5) discard;
 
+                // Simple gradient based on height
                 vec3 gold = vec3(1.0, 0.84, 0.0);
                 vec3 mixColor = mix(uColor, gold, (vPosition.y + 35.0) / 70.0 * 0.4);
+
                 float strength = pow(1.0 - dist * 2.0, 2.0);
                 gl_FragColor = vec4(mixColor, strength * vAlpha);
             }
@@ -505,9 +513,9 @@ function createRippleFloor() {
 // ==========================================
 // 6. Topper Logic
 // ==========================================
-const TOPPER_PARTICLE_COUNT = 1200;
-const TOPPER_Y_BASE = 36;
-const TOPPER_SIZE = 0.3;
+const TOPPER_PARTICLE_COUNT = 1500;
+const TOPPER_Y_BASE = 37.5;
+const TOPPER_SIZE = 0.35;
 
 function createTopperMaterial() {
     return new THREE.PointsMaterial({
@@ -530,6 +538,7 @@ function createGeometryFromShape(shapeFn) {
     return geometry;
 }
 
+// --- Snowflake ---
 function createVerticalSnowflakeTopper() {
     const radius = 2.0;
     const flakeShape = (positions, i) => {
@@ -540,66 +549,82 @@ function createVerticalSnowflakeTopper() {
         const spread = (Math.random() - 0.5) * 0.2;
         let branchOffset = 0;
         if (Math.random() > 0.7) branchOffset = Math.random() * 0.5;
+
         let x = Math.cos(armAngle) * dist + Math.cos(armAngle + Math.PI/2) * spread;
         let y = Math.sin(armAngle) * dist + Math.sin(armAngle + Math.PI/2) * spread;
         if(branchOffset > 0) y += branchOffset;
+
         positions[i3] = x;
         positions[i3+1] = TOPPER_Y_BASE + y;
-        positions[i3+2] = (Math.random() - 0.5) * 0.2;
+        positions[i3+2] = (Math.random() - 0.5) * 0.2; // Thin in Z
     };
     return createGeometryFromShape(flakeShape);
 }
 
+// --- Solid Star ---
 function createVerticalStarTopper() {
-    const starShape = (positions, i) => {
-        const i3 = i * 3;
-        const r = Math.pow(Math.random(), 0.5) * 3.0;
-        const armAngle = (Math.floor(Math.random() * 5) * 2 * Math.PI / 5) - Math.PI/2;
-        const angle = armAngle + (Math.random() - 0.5) * 0.4;
-        let x = Math.cos(angle) * r;
-        let y = Math.sin(angle) * r;
-        positions[i3] = x;
-        positions[i3+1] = TOPPER_Y_BASE + y;
-        positions[i3+2] = (Math.random() - 0.5) * 0.5;
+    const outerRadius = 4.0;
+    const innerRadius = 2.0;
+
+    const geometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(TOPPER_PARTICLE_COUNT * 3);
+    let p = 0;
+
+    const vertices = [];
+    for(let k=0; k<10; k++) {
+        const r = (k % 2 === 0) ? outerRadius : innerRadius;
+        const theta = Math.PI/2 - k * (Math.PI / 5);
+        vertices.push({x: r * Math.cos(theta), y: r * Math.sin(theta)});
+    }
+
+    const pointInStar = (x, y) => {
+        let inside = false;
+        for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+            const xi = vertices[i].x, yi = vertices[i].y;
+            const xj = vertices[j].x, yj = vertices[j].y;
+
+            const intersect = ((yi > y) !== (yj > y))
+                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
     };
-    return createGeometryFromShape(starShape);
+
+    while(p < TOPPER_PARTICLE_COUNT) {
+        const x = (Math.random() - 0.5) * 2 * outerRadius;
+        const y = (Math.random() - 0.5) * 2 * outerRadius;
+
+        if (pointInStar(x, y)) {
+            const i3 = p * 3;
+            posArray[i3] = x;
+            posArray[i3+1] = TOPPER_Y_BASE + y;
+            const dist = Math.sqrt(x*x + y*y);
+            const thick = 1.0 * (1.0 - dist/outerRadius);
+            posArray[i3+2] = (Math.random() - 0.5) * thick;
+            p++;
+        }
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    return geometry;
 }
 
+// --- Heart ---
 function createVerticalHeartTopper() {
     const heartShape = (positions, i) => {
         const i3 = i * 3;
         const t = Math.random() * Math.PI * 2;
-        const scale = 4.0;
-        let y_raw = scale * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-        let x_raw = scale * 16 * Math.pow(Math.sin(t), 3);
-        let y = y_raw / 100 + (Math.random() - 0.5) * 0.5;
-        let x = x_raw / 100 + (Math.random() - 0.5) * 0.5;
-        positions[i3] = x * 1.5;
-        positions[i3+1] = TOPPER_Y_BASE + y;
+        const r = Math.sqrt(Math.random());
+        const scale = 3.5;
+        let y_bound = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+        let x_bound = 16 * Math.pow(Math.sin(t), 3);
+        let x = x_bound * r;
+        let y = y_bound * r;
+        positions[i3] = x / 100 * scale * 4.0;
+        positions[i3+1] = TOPPER_Y_BASE + (y / 100 * scale * 4.0) + 1.0;
         positions[i3+2] = (Math.random() - 0.5) * 0.5;
     };
     return createGeometryFromShape(heartShape);
-}
-
-function createVerticalPokemonTopper() {
-    const pokemonShape = (positions, i) => {
-        const i3 = i * 3;
-        const r = Math.pow(Math.random(), 0.8) * 3.0;
-        const angle = Math.random() * Math.PI * 2;
-        let x = Math.cos(angle) * r;
-        let y = Math.sin(angle) * r;
-        if (Math.random() > 0.85) {
-            const earSide = Math.random() > 0.5 ? 1 : -1;
-            x = earSide * 1.5 + (Math.random() - 0.5) * 0.5;
-            y = 3.5 + Math.random() * 2.5;
-        } else if (r > 3.0) {
-            return;
-        }
-        positions[i3] = x * 0.8;
-        positions[i3+1] = TOPPER_Y_BASE + y + 1.0;
-        positions[i3+2] = (Math.random() - 0.5) * 0.5;
-    };
-    return createGeometryFromShape(pokemonShape);
 }
 
 function updateTopper(selection) {
@@ -611,7 +636,6 @@ function updateTopper(selection) {
     let geometry;
     switch(selection) {
         case 'star': geometry = createVerticalStarTopper(); break;
-        case 'pokemon': geometry = createVerticalPokemonTopper(); break;
         case 'heart': geometry = createVerticalHeartTopper(); break;
         case 'snowflake': default: geometry = createVerticalSnowflakeTopper(); break;
     }
@@ -622,14 +646,17 @@ function updateTopper(selection) {
 }
 
 // ==========================================
-// 7. Falling Snow
+// 7. Falling Snow (UPDATED)
 // ==========================================
 function createSnowEnvironment() {
-    const snowCount = 2000;
+    // CHANGED: Increased count from 2000 to 2400 (+20%)
+    const snowCount = 2400;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(snowCount * 3);
     const sizes = new Float32Array(snowCount);
     const speeds = new Float32Array(snowCount);
+    // CHANGED: Added Color buffer for mix of White and Silver
+    const colors = new Float32Array(snowCount * 3);
 
     for (let i = 0; i < snowCount; i++) {
         const i3 = i * 3;
@@ -638,20 +665,37 @@ function createSnowEnvironment() {
         positions[i3 + 2] = (Math.random() - 0.5) * 150;
         sizes[i] = (Math.random() > 0.9) ? Math.random() * 2.0 + 2.0 : Math.random() * 0.5 + 0.2;
         speeds[i] = 0.05 + Math.random() * 0.2;
+
+        // CHANGED: Mix color between Pure White and Silver/Grey
+        const isSilver = Math.random() > 0.5;
+        if (isSilver) {
+            colors[i3] = 0.75; // R
+            colors[i3+1] = 0.75; // G
+            colors[i3+2] = 0.8;  // B (slight bluish silver)
+        } else {
+            colors[i3] = 1.0;
+            colors[i3+1] = 1.0;
+            colors[i3+2] = 1.0;
+        }
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
     geometry.setAttribute('speed', new THREE.BufferAttribute(speeds, 1));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(0xFFFFFF) } },
+        uniforms: { uTime: { value: 0 } },
         vertexShader: `
             uniform float uTime;
             attribute float size;
             attribute float speed;
+            attribute vec3 color;
             varying float vAlpha;
+            varying vec3 vColor;
+
             void main() {
+                vColor = color;
                 vec3 pos = position;
                 float yOffset = mod(uTime * 15.0 * speed, 100.0);
                 pos.y -= yOffset;
@@ -659,14 +703,19 @@ function createSnowEnvironment() {
                 vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
                 gl_PointSize = size * (150.0 / -mvPosition.z);
-                vAlpha = 0.5 + 0.5 * sin(uTime + pos.x);
+
+                // CHANGED: Glittering effect logic
+                float twinkle = sin(uTime * 5.0 + pos.x);
+                vAlpha = 0.5 + 0.5 * twinkle;
             }
         `,
         fragmentShader: `
             varying float vAlpha;
+            varying vec3 vColor;
             void main() {
                 if(length(gl_PointCoord - 0.5) > 0.5) discard;
-                gl_FragColor = vec4(1.0, 1.0, 1.0, vAlpha);
+                // Output color combined with alpha
+                gl_FragColor = vec4(vColor, vAlpha);
             }
         `,
         transparent: true,
@@ -678,7 +727,7 @@ function createSnowEnvironment() {
 }
 
 // ==========================================
-// 8. MediaPipe Hands Integration
+// 8. MediaPipe Hands Integration & Camera
 // ==========================================
 function initMediaPipe() {
     const videoElement = document.getElementById('input-video');
@@ -696,22 +745,28 @@ function initMediaPipe() {
 
     handsDetector.onResults(onHandsResults);
 
-    // Initial width/height setup for Camera
-    const constraints = {
-        width: 640,
-        height: 480,
-        facingMode: 'user' // IMPORTANT: Request front camera on mobile
-    };
+    startCamera(videoElement);
+}
+
+function startCamera(videoElement) {
+    if (cameraFeed) {
+        if (videoElement.srcObject) {
+            videoElement.srcObject.getTracks().forEach(track => track.stop());
+        }
+    }
 
     cameraFeed = new Camera(videoElement, {
         onFrame: async () => {
-            await handsDetector.send({image: videoElement});
+            if(cameraRunning) {
+                await handsDetector.send({image: videoElement});
+            }
         },
         width: 640,
         height: 480,
-        facingMode: 'user'
+        facingMode: currentFacingMode
     });
 
+    cameraRunning = true;
     cameraFeed.start()
         .then(() => {
             document.getElementById('status-message').style.display = 'none';
@@ -721,7 +776,7 @@ function initMediaPipe() {
             }, 8000);
         })
         .catch(err => {
-            document.getElementById('status-message').innerHTML = "Camera failed.<br>Ensure you are using HTTPS or localhost.<br>" + err.message;
+            document.getElementById('status-message').innerHTML = "Camera failed.<br>" + err.message;
             console.error(err);
         });
 }
@@ -733,11 +788,17 @@ function detectPinchGesture(landmarks) {
     const dy = thumb.y - index.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Tweaked sensitivity
-    const maxDist = 0.16;
-    const minDist = 0.06;
-    const pinchFactor = 1.0 - ((distance - minDist) / (maxDist - minDist));
-    return THREE.MathUtils.clamp(pinchFactor, 0.0, 1.0);
+    const maxDist = 0.20;
+    const minDist = 0.05;
+
+    let pinchFactor = 1.0 - ((distance - minDist) / (maxDist - minDist));
+    pinchFactor = THREE.MathUtils.clamp(pinchFactor, 0.0, 1.0);
+
+    if (pinchFactor > 0.7) {
+        return 1.0;
+    }
+
+    return pinchFactor;
 }
 
 function onHandsResults(results) {
@@ -765,6 +826,7 @@ function setupUI() {
     const densitySlider = document.getElementById('densitySlider');
     const topperSelect = document.getElementById('topperSelect');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const cameraSwitchBtn = document.getElementById('cameraSwitchBtn');
 
     colorPicker.addEventListener('input', (e) => {
         interactionState.baseColor.set(e.target.value);
@@ -795,6 +857,12 @@ function setupUI() {
         } else {
             if (document.exitFullscreen) document.exitFullscreen();
         }
+    });
+
+    cameraSwitchBtn.addEventListener('click', () => {
+        currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+        const videoElement = document.getElementById('input-video');
+        startCamera(videoElement);
     });
 }
 
